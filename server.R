@@ -39,7 +39,7 @@ server <- function(input, output, session){
     dbCreds <- config::get()
 
     # Set IP host address
-    options("shint.host" = dbCreds$shinyHost)
+    options("shiny.host" = dbCreds$shinyHost)
 
     # Set port number
     options("shiny.port" = dbCreds$shinyPort)
@@ -56,6 +56,20 @@ server <- function(input, output, session){
     }
 
     # Inactivity Function
+    inactivity <- "function idleTimer() {
+    var t = setTimeout(logout, 120000);
+    window.onmousemove = resetTimer;
+    window.onmousedown = resetTimer;
+    window.onclick = resetTimer;
+    window.onscroll = resetTimer;
+    function logout(){
+        window.close();
+        }
+    function resetTime() {
+        clearTimeout(t);
+        t = setTimeout(logout, 120000);
+        }
+    }"
 
     ##########USER INPUT DEFINITONS############
     genericExample <- reactive({
@@ -73,5 +87,5 @@ server <- function(input, output, session){
     # Check creds
     result_auth <- secure_server(check_credentials = check_credentials = (credentials))
 
-    
+
 }

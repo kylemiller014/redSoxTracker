@@ -10,7 +10,20 @@ require(plotly)
 require(DiagrammeR)
 
 # Inactivity Function
-
+inactivity <- "function idleTimer() {
+    var t = setTimeout(logout, 120000);
+    window.onmousemove = resetTimer;
+    window.onmousedown = resetTimer;
+    window.onclick = resetTimer;
+    window.onscroll = resetTimer;
+    function logout(){
+        window.close();
+    }
+    function resetTime() {
+        clearTimeout(t);
+        t = setTimeout(logout, 120000);
+    }
+}"
 #####DASHBOARD HEADER######
 header <- dashboardHeader(title = 'How are the Sox Looking...?')
 

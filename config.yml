@@ -1,8 +1,8 @@
 default:
   source: 'config.yml'
   ip: '127.0.0.1'
-  port: 5000
+  port: 3306
   user: 'kyle_dba'
   pass: 'example_password'
   shinyHost: '127.0.0.1'
-  shinyPort: 5001
+  shinyPort: 5005
