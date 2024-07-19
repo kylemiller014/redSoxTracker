@@ -25,7 +25,7 @@ inactivity <- "function idleTimer() {
     }
 }"
 #####DASHBOARD HEADER######
-header <- dashboardHeader(title = 'How are the Sox Looking...?')
+header <- dashboardHeader(title = 'RedSox Tracker')
 
 #####DASHBOARD SIDEBAR######
 sidebar <- dashboardSidebar(sidebarMenu(
