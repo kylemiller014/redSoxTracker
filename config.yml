@@ -3,6 +3,6 @@ default:
   ip: '127.0.0.1'
   port: 3306
   user: 'kyle_dba'
-  pass: 'example_password'
+  pass: 'Sigep2017!'
   shinyHost: '127.0.0.1'
   shinyPort: 5005

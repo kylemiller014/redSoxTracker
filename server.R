@@ -51,7 +51,7 @@ server <- function(input, output, session){
             port = dbCreds$port, 
             username = dbCreds$user, 
             password = dbCreds$pass, 
-            sqlQuery = 'SELECT * FROM creds.userInfo;', 
+            sqlQuery = 'SELECT username, password FROM creds.userInfo;', 
             limit = -1)
     }
 
@@ -85,7 +85,7 @@ server <- function(input, output, session){
     credentials <- getCredentials()
 
     # Check creds
-    result_auth <- secure_server(check_credentials = check_credentials = (credentials))
+    result_auth <- secure_server(check_credentials = check_credentials(credentials))
 
 
 }

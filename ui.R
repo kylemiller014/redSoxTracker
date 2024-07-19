@@ -71,6 +71,6 @@ body <- dashboardBody(tabItems(
 #####DASHBOARD HEADER######
 
 #####RENDER UI######
-ui <- secure_app(tags_top = tags$img(src = 'app_logo.jpg', height = 400, width =400),
+ui <- secure_app(tags_top = tags$img(src = 'app_logo.jpeg', height = 400, width =400),
         head_auth = tags$script(inactivity),
         dashboardPage(title = 'redsoxTracker', header, sidebar, body))
