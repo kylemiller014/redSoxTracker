@@ -26,6 +26,7 @@ require(DiagrammeR)
 source("./functions/dbConnect.R")
 source("./functions/dataClean.R")
 source("./functions/columnDataTypes.R")
+source("./functions/ParserTodaysGame.R")
 
 # Output directory for cleaned data
 opf <- "./data"
@@ -87,5 +88,9 @@ server <- function(input, output, session){
     # Check creds
     result_auth <- secure_server(check_credentials = check_credentials(credentials))
 
+    # Get today's game information
+    getTodaysGames <- eventReactive(input$click, {
+        df <- ParserTodaysGame()
+    })
 
 }
