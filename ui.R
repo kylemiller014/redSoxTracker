@@ -51,7 +51,12 @@ sidebar <- dashboardSidebar(sidebarMenu(
 #####DASHBOARD MAIN BODY######
 body <- dashboardBody(tabItems(
     # Today's Game
-    tabItem(tabName = 'currentGame'),
+    tabItem(tabName = 'currentGame',
+        fluidRow(
+            valueBoxOutput("todaysDate")
+            #valueBoxOutput("totalGamesOutput"),
+            #valueBoxOutput("redSoxCheck")
+        )),
 
     # Schedule
     tabItem(tabName = 'seasonSchedule'),

@@ -89,8 +89,18 @@ server <- function(input, output, session){
     result_auth <- secure_server(check_credentials = check_credentials(credentials))
 
     # Get today's game information
-    getTodaysGames <- eventReactive(input$click, {
+    getTodaysGames <- eventReactive(result_auth$authorized == TRUE, {
         df <- ParserTodaysGame()
     })
+    
+    # Render Value Box 1: "todaysDate"
+    output$todaysDate <- renderValueBox({
+      todaysDF <- getTodaysGames()
+      currentDate <- todaysDF[1,7]
+      valueBox(value=tags$p(dateRange, style = "font-size:150%"), "Today's Date", icon = icon("calendar"))
+    })
+    # Render Value Box 2: "totalGamesOutput"
+    
+    # Render Value Box 3: "redSoxCheck"
 
 }
