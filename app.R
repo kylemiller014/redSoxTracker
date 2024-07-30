@@ -22,8 +22,8 @@ library(htmlwidgets)
 library(reactlog)
 library(DiagrammeR)
 
-source("redSoxTracker/ui.R")
-source("redSoxTracker/server.R")
+source("ui.R")
+source("server.R")
 
 # Disconnect all db connections
 onStop(function(){
