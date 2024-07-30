@@ -73,9 +73,9 @@ server <- function(input, output, session){
     }"
 
     ##########USER INPUT DEFINITONS############
-    genericExample <- reactive({
-        input$genericExample
-    })
+    #genericExample <- reactive({
+        #input$genericExample
+    #})
 
     ##########GENERIC FUNCTIONS############
     # General functions and defintions used throughout the application
@@ -97,7 +97,7 @@ server <- function(input, output, session){
     output$todaysDate <- renderValueBox({
       todaysDF <- getTodaysGames()
       currentDate <- todaysDF[1,7]
-      valueBox(value=tags$p(dateRange, style = "font-size:150%"), "Today's Date", icon = icon("calendar"))
+      valueBox(value=tags$p(currentDate, style = "font-size:150%"), "Today's Date", icon = icon("calendar"))
     })
     # Render Value Box 2: "totalGamesOutput"
     
