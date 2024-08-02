@@ -6,6 +6,8 @@ require(shinyBS)
 require(shinybusy)
 require(shinyFeedback)
 require(shinymanager)
+require(shinydashboard)
+require(shinyWidgets)
 require(plotly)
 require(DiagrammeR)
 
@@ -49,14 +51,25 @@ sidebar <- dashboardSidebar(sidebarMenu(
 ))
 
 #####DASHBOARD MAIN BODY######
-body <- dashboardBody(tabItems(
+body <- dashboardBody(useShinyjs(),tabItems(
     # Today's Game
     tabItem(tabName = 'currentGame',
+        # Summary of Today's Games
         fluidRow(
             valueBoxOutput("todaysDate"),
             valueBoxOutput("totalGamesOutput"),
             valueBoxOutput("redSoxCheck")
-        )),
+                ),
+        # Dynamically create value boxes based on the number of games
+        fluidRow(
+          uiOutput("dynamic_matchups")
+                ),
+        # Dynamically create additional details associated to value boxes
+         hidden(
+          uiOutput("dynamic_details")
+              )
+        )
+    ),
 
     # Schedule
     tabItem(tabName = 'seasonSchedule'),
@@ -72,7 +85,7 @@ body <- dashboardBody(tabItems(
 
     # Field Rendering
     tabItem(tabName = 'fenwayDetails')
-))
+)
 
 #####RENDER UI######
 ui <- secure_app(tags_top = tags$img(src = 'app_logo.jpeg', height = 400, width =400),

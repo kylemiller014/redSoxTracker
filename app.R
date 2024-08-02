@@ -2,6 +2,8 @@
 library(shiny)
 library(shinymanager)
 library(shinydashboard)
+library(shinyWidgets)
+library(shinyjs)
 library(plotly)
 library(ggplot2)
 library(shinyBS)
