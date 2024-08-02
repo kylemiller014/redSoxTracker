@@ -30,22 +30,22 @@ header <- dashboardHeader(title = 'RedSox Tracker')
 #####DASHBOARD SIDEBAR######
 sidebar <- dashboardSidebar(sidebarMenu(
     # Today's Game
-    menuItem("Today's Action", tabname = 'currentGame', icon = icon("dashboard"), startExpanded = TRUE),
+    menuItem("Today's Action", tabName = 'currentGame', icon = icon("dashboard")),
 
     # Schedule
-    menuItem("Schedule", tabname = 'seasonSchedule', icon = icon("th")),
+    menuItem("Schedule", tabName = 'seasonSchedule', icon = icon("th")),
 
     # Prospect Rankings
-    menuItem("Prospect Rankings", tabname = 'prospectRank', icon = icon("th")),
+    menuItem("Prospect Rankings", tabName = 'prospectRank', icon = icon("th")),
 
     # Standings
-    menuItem("Standings", tabname = 'seasonStandings', icon = icon("th")),
+    menuItem("Standings", tabName = 'seasonStandings', icon = icon("th")),
 
     # Stats
-    menuItem("Stats", tabname = 'seasonStats', icon = icon("th")),
+    menuItem("Stats", tabName = 'seasonStats', icon = icon("th")),
 
     # Field Rendering
-    menuItem("Fenway", tabname = 'fenwayDetails', icon = icon("th"))
+    menuItem("Fenway", tabName = 'fenwayDetails', icon = icon("th"))
 ))
 
 #####DASHBOARD MAIN BODY######
@@ -53,9 +53,9 @@ body <- dashboardBody(tabItems(
     # Today's Game
     tabItem(tabName = 'currentGame',
         fluidRow(
-            valueBoxOutput("todaysDate")
-            #valueBoxOutput("totalGamesOutput"),
-            #valueBoxOutput("redSoxCheck")
+            valueBoxOutput("todaysDate"),
+            valueBoxOutput("totalGamesOutput"),
+            valueBoxOutput("redSoxCheck")
         )),
 
     # Schedule
@@ -73,7 +73,6 @@ body <- dashboardBody(tabItems(
     # Field Rendering
     tabItem(tabName = 'fenwayDetails')
 ))
-#####DASHBOARD HEADER######
 
 #####RENDER UI######
 ui <- secure_app(tags_top = tags$img(src = 'app_logo.jpeg', height = 400, width =400),

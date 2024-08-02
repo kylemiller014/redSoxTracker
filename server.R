@@ -58,7 +58,7 @@ server <- function(input, output, session){
 
     # Inactivity Function
     inactivity <- "function idleTimer() {
-    var t = setTimeout(logout, 120000);
+    var t = setTimeout(logout, 1200000);
     window.onmousemove = resetTimer;
     window.onmousedown = resetTimer;
     window.onclick = resetTimer;
@@ -68,7 +68,7 @@ server <- function(input, output, session){
         }
     function resetTime() {
         clearTimeout(t);
-        t = setTimeout(logout, 120000);
+        t = setTimeout(logout, 1200000);
         }
     }"
 
@@ -90,17 +90,30 @@ server <- function(input, output, session){
 
     # Get today's game information
     getTodaysGames <- eventReactive(result_auth$authorized == TRUE, {
-        df <- ParserTodaysGame()
-    })
+      ParserTodayGame()
+      })
     
     # Render Value Box 1: "todaysDate"
     output$todaysDate <- renderValueBox({
       todaysDF <- getTodaysGames()
-      currentDate <- todaysDF[1,7]
-      valueBox(value=tags$p(currentDate, style = "font-size:150%"), "Today's Date", icon = icon("calendar"))
+      currentDate <- as.POSIXct(todaysDF[1,7])
+      valueBox(currentDate, "Today's Date", icon = icon("calendar"),
+               color = 'blue', width = 4)
     })
+    
     # Render Value Box 2: "totalGamesOutput"
+    output$totalGamesOutput <- renderValueBox({
+      todaysGames <- getTodaysGames()
+      currentGames <- nrow(todaysGames)
+      valueBox(currentGames, "Total Games Today", icon = icon("calendar"),
+               color = 'blue', width = 4)
+    })
     
     # Render Value Box 3: "redSoxCheck"
-
+    output$redSoxCheck <- renderValueBox({
+      redSoxDf <- getTodaysGames()
+      redSoxPlaying <- 'YES'
+      valueBox(redSoxPlaying, "RedSox in Action?", icon = icon("th"),
+               color = 'green', width = 4)
+    })
 }
