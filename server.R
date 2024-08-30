@@ -54,6 +54,7 @@ server <- function(input, output, session){
             password = dbCreds$pass, 
             sqlQuery = 'SELECT username, password FROM creds.userInfo;', 
             limit = -1)
+        return(credentials)
     }
 
     # Inactivity Function
