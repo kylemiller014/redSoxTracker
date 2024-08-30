@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RedSoxTracker Logo</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #eaeaea; /* Light grey background for contrast */
+            font-family: 'Arial', sans-serif;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            background: #0c2340; /* Dark blue background for the logo */
+            color: #ffffff; /* White text color */
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+            font-size: 1.2rem;
+        }
+        .logo::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            width: 80px;
+            height: 80px;
+            background-color: #ffffff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            z-index: -1;
+        }
+        .logo .icon {
+            width: 60px;
+            height: 60px;
+            position: relative;
+            margin-right: 15px;
+        }
+        .logo .icon::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 60px;
+            height: 60px;
+            background-color: #ffffff;
+            border-radius: 50%;
+            border: 4px solid #e10027; /* Red border */
+            transform: translate(-50%, -50%);
+        }
+        .logo .icon::after {
+            content: '⚾';
+            font-size: 30px;
+            color: #0c2340; /* Dark blue color for the icon */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .logo .text {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .logo .text span {
+            color: #e10027; /* Red color for the "Tracker" part */
+            text-shadow: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="logo">
+        <div class="icon"></div>
+        <div class="text">
+            RedSox<span>Tracker</span>
+        </div>
+    </div>
+</body>
+</html>
