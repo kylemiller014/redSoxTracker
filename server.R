@@ -8,6 +8,7 @@ require(shinyBS)
 require(shinybusy)
 require(shinyFeedback)
 require(shinythemes)
+require(shinyalert)
 require(RMySQL)
 require(DBI)
 require(dplyr)
@@ -93,7 +94,12 @@ server <- function(input, output, session){
     getTodaysGames <- eventReactive(result_auth$authorized == TRUE, {
       # Update data presented to users every 10000 milliseconds
       invalidateLater(60000)
-      ParserTodayGame()
+      df <- ParserTodayGame()
+      if(nrow(df) < 1){
+        shinyalert("API returned NULL... either it's the offseason or my code is broken... Either way enjoy a random day of data I saved for a rainy day!", type = "error")
+        df <- GetDataFromDb(dbCreds$ip, dbCreds$port, dbCreds$user, dbCreds$pass, "SELECT * FROM shiny.offlinemode_0830;")
+      }
+      df
       })
     
     # Render Value Box 1: "todaysDate"

@@ -6,6 +6,7 @@ require(shinyBS)
 require(shinybusy)
 require(shinyFeedback)
 require(shinymanager)
+require(shinyalert)
 require(plotly)
 require(DiagrammeR)
 
@@ -77,4 +78,4 @@ body <- dashboardBody(tabItems(
 #####RENDER UI######
 ui <- secure_app(tags_top = tags$img(src = 'app_logo.jpeg', height = 400, width =400),
         head_auth = tags$script(inactivity),
-        dashboardPage(title = 'redsoxTracker', header, sidebar, body))
+        dashboardPage(title = 'Track the Sox', header, sidebar, body, skin = 'black'))
