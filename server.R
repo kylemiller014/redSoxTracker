@@ -91,6 +91,8 @@ server <- function(input, output, session){
 
     # Get today's game information
     getTodaysGames <- eventReactive(result_auth$authorized == TRUE, {
+      # Update data presented to users every 10000 milliseconds
+      invalidateLater(60000)
       ParserTodayGame()
       })
     

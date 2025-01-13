@@ -34,7 +34,7 @@ onStop(function(){
 dbCreds <- config::get()
 
 # Set IP host address
-options("shint.host" = dbCreds$shinyHost)
+options("shiny.host" = dbCreds$shinyHost)
 
 # Set port number
 options("shiny.port" = dbCreds$shinyPort)

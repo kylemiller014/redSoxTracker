@@ -3,7 +3,6 @@
 library(httr)
 library(jsonlite)
 library(tibble)
-library(purrr)
 library(stringr)
 library(dplyr)
 library(tidyr)
