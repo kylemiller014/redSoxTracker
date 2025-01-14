@@ -26,7 +26,7 @@ inactivity <- "function idleTimer() {
     }
 }"
 #####DASHBOARD HEADER######
-header <- dashboardHeader(title = 'RedSox Tracker')
+header <- dashboardHeader(title = 'SoxTracker')
 
 #####DASHBOARD SIDEBAR######
 sidebar <- dashboardSidebar(sidebarMenu(
@@ -57,6 +57,10 @@ body <- dashboardBody(tabItems(
             valueBoxOutput("todaysDate"),
             valueBoxOutput("totalGamesOutput"),
             valueBoxOutput("redSoxCheck")
+        ),
+        # Dynamically create value boxes based on the number of games
+        fluidRow(
+          uiOutput("dynamicMatchup")
         )),
 
     # Schedule

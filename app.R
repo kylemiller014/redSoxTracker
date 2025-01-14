@@ -22,6 +22,7 @@ library(arsenal)
 library(htmlwidgets)
 library(reactlog)
 library(DiagrammeR)
+library(stringr)
 
 source("ui.R")
 source("server.R")

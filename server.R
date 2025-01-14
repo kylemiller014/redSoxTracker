@@ -22,6 +22,7 @@ require(arsenal)
 require(htmlwidgets)
 require(reactlog)
 require(DiagrammeR)
+require(stringr)
 
 # Import additional functions
 source("./functions/dbConnect.R")
@@ -96,7 +97,7 @@ server <- function(input, output, session){
       invalidateLater(60000)
       df <- ParserTodayGame()
       if(nrow(df) < 1){
-        shinyalert("API returned NULL... either it's the offseason or my code is broken... Either way enjoy a random day of data I saved for a rainy day!", type = "error")
+        shinyalert("API returned NULL... either it's the offseason or my code is broken... Time travel back to August 30th, 2024 while I get this figured out...", type = "error")
         df <- GetDataFromDb(dbCreds$ip, dbCreds$port, dbCreds$user, dbCreds$pass, "SELECT * FROM shiny.offlinemode_0830;")
       }
       df
@@ -113,7 +114,7 @@ server <- function(input, output, session){
     # Render Value Box 2: "totalGamesOutput"
     output$totalGamesOutput <- renderValueBox({
       todaysGames <- getTodaysGames()
-      currentGames <- nrow(todaysGames)
+      currentGames <<- nrow(todaysGames)
       valueBox(currentGames, "Total Games Today", icon = icon("calendar"),
                color = 'blue', width = 4)
     })
@@ -121,8 +122,80 @@ server <- function(input, output, session){
     # Render Value Box 3: "redSoxCheck"
     output$redSoxCheck <- renderValueBox({
       redSoxDf <- getTodaysGames()
-      redSoxPlaying <- 'YES'
+      awayTeam <- grepl('Boston Red Sox' , redSoxDf$dates_games_teams_away_team_name)
+      homeTeams <- grepl('Boston Red Sox' ,redSoxDf$dates_games_teams_home_team_name)
+      
+      # Check if the Red Sox are active today
+      if(!all(awayTeam) || !all(homeTeam)){
+        redSoxPlaying <- 'YES'
+        redSoxColor <- 'green'
+      } else{
+        redSoxPlaying <- 'NO'
+        redSoxColor <- 'red'
+      }
+
       valueBox(redSoxPlaying, "RedSox in Action?", icon = icon("th"),
-               color = 'green', width = 4)
+               color = redSoxColor, width = 4)
     })
+    
+    # Dynamically render daily match ups
+    #dynamically create the right number of htmlOutput
+    # renderUI
+    output$dynamicMatchup <- renderUI({
+      dailyDf <- getTodaysGames()
+      dailyCount <- nrow(dailyDf)
+      dailyMatchupList <- lapply(1:dailyCount, function(i) {
+        matchupList <- paste0("matchup", i)
+        valueBoxOutput(matchupList)
+      })
+      
+      tagList(dailyMatchupList)
+    }) 
+    
+    for (i in 1:16) {
+      local({
+        thisI <- i
+        matchupName <- paste0("matchup", thisI)
+        
+        output[[matchupName]] <- renderUI({
+          # Concatenate team names and scores
+          # Red Sox vs. Atlanta Braves
+          # Score
+          # Status (in progress, delayed, coming soon, etc.)
+          oneMoreTime <- getTodaysGames()
+          gameStatus <- oneMoreTime[thisI, 30]
+          homeTeamName <- oneMoreTime[thisI, 50]
+          homeTeamScore <- oneMoreTime[thisI,43]
+          homeTeamWin <- oneMoreTime[thisI,46]
+          homeTeamLoss <- oneMoreTime[thisI,47]
+          awayTeamName <- oneMoreTime[thisI, 41]
+          awayTeamScore <- oneMoreTime[thisI,34]
+          awayTeamWin <- oneMoreTime[thisI,37]
+          awayTeamLoss <- oneMoreTime[thisI,38]
+          if(gameStatus == "In Progress"){
+            gameScore <- paste0(gameStatus, ": ", awayTeamScore, " - ", homeTeamScore)
+          } else{
+            gameScore <- paste0(gameStatus ,": 0 - 0")
+          }
+          namingConvention <- paste0(awayTeamName,"(",awayTeamWin," - ",awayTeamLoss,")"," @ ",
+                                     homeTeamName,"(",homeTeamWin," - ",homeTeamLoss,")")
+          if(gameStatus == "In Progess"){
+            colorCheck <- "lightblue"
+          } else if (gameStatus == "Scheduled"){
+            colorCheck <- "olive"
+          } else if(gameStatus == "Pre-Game") {
+            colorCheck <- "orange"
+          } else{
+            colorCheck <- "red"
+          }
+          
+          valueBox(
+            gameScore,
+            namingConvention,
+            width = 20,
+            color = colorCheck
+          )
+        })
+      })
+    }
 }
