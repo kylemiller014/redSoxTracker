@@ -82,6 +82,40 @@ server <- function(input, output, session){
 
     ##########GENERIC FUNCTIONS############
     # General functions and defintions used throughout the application
+    # Team abbreviations map
+    teamMap <- c("Arizona Diamondbacks" = "ARI",
+                 "Atlanta Braves" = "ATL",
+                 "Baltimore Orioles" = "BAL",
+                 "Boston Red Sox" = "BOS",
+                 "Chicago Cubs" = "CHC",
+                 "Chicago White Sox" = "CWS",
+                 "Cincinnati Reds" = "CIN",
+                 "Cleveland Guardians" = "CLE",
+                 "Colorado Rockies" = "COL",
+                 "Detroit Tigers" = "DET",
+                 # HAHA used to be the FLORIDA Marlins
+                 # Definitely didn't troubleshoot this for long at all...
+                 "Miami Marlins" = "MIA",
+                 "Houston Astros" = "HOU",
+                 "Kansas City Royals" = "KAN",
+                 "Los Angeles Angels" = "LAA",
+                 "Los Angeles Dodgers" = "LAD",
+                 "Milwaukee Brewers" = "MIL",
+                 "Minnesota Twins" = "MIN",
+                 "New York Mets" = "NYM",
+                 "New York Yankees" = "NYY",
+                 "Oakland Athletics" = "OAK",
+                 "Philadelphia Phillies" = "PHI",
+                 "Pittsburgh Pirates" = "PIT",
+                 "San Diego Padres" = "SD",
+                 "San Francisco Giants" = "SF",
+                 "Seattle Mariners" = "SEA",
+                 "St. Louis Cardinals" = "STL",
+                 "Tampa Bay Rays" = "TB",
+                 "Texas Rangers" = "TEX",
+                 "Toronto Blue Jays" = "TOR",
+                 "Washington Nationals" = "WAS")
+    
     # Store plotly graphics locally if desired
     session_store <- reactiveValues()
 
@@ -93,19 +127,20 @@ server <- function(input, output, session){
 
     # Get today's game information
     getTodaysGames <- eventReactive(result_auth$authorized == TRUE, {
-      # Update data presented to users every 10000 milliseconds
-      invalidateLater(60000)
-      df <- ParserTodayGame()
-      if(nrow(df) < 1){
-        shinyalert("API returned NULL... either it's the offseason or my code is broken... Time travel back to August 30th, 2024 while I get this figured out...", type = "error")
-        df <- GetDataFromDb(dbCreds$ip, dbCreds$port, dbCreds$user, dbCreds$pass, "SELECT * FROM shiny.offlinemode_0830;")
-      }
-      df
-      })
+      # Check if user has successfully logged in
+        # Update data presented to users every 10000 milliseconds
+        invalidateLater(60000)
+        df <- ParserTodayGame()
+        if(nrow(df) < 1){
+          shinyalert("API returned NULL... either it's the offseason or my code is broken... Time travel back to August 30th, 2024 while I get this figured out...", type = "error")
+          df <- GetDataFromDb(dbCreds$ip, dbCreds$port, dbCreds$user, dbCreds$pass, "SELECT * FROM shiny.offlinemode_0830;")
+        }
+    })
     
     # Render Value Box 1: "todaysDate"
     output$todaysDate <- renderValueBox({
       todaysDF <- getTodaysGames()
+      #todaysDF <- todaysReactive$df
       currentDate <- as.POSIXct(todaysDF[1,7])
       valueBox(currentDate, "Today's Date", icon = icon("calendar"),
                color = 'blue', width = 4)
@@ -114,6 +149,7 @@ server <- function(input, output, session){
     # Render Value Box 2: "totalGamesOutput"
     output$totalGamesOutput <- renderValueBox({
       todaysGames <- getTodaysGames()
+      #todaysGame <- todaysReactive$df
       currentGames <<- nrow(todaysGames)
       valueBox(currentGames, "Total Games Today", icon = icon("calendar"),
                color = 'blue', width = 4)
@@ -122,6 +158,7 @@ server <- function(input, output, session){
     # Render Value Box 3: "redSoxCheck"
     output$redSoxCheck <- renderValueBox({
       redSoxDf <- getTodaysGames()
+      #redSoxDf <- todaysReactive$df
       awayTeam <- grepl('Boston Red Sox' , redSoxDf$dates_games_teams_away_team_name)
       homeTeams <- grepl('Boston Red Sox' ,redSoxDf$dates_games_teams_home_team_name)
       
@@ -143,6 +180,7 @@ server <- function(input, output, session){
     # renderUI
     output$dynamicMatchup <- renderUI({
       dailyDf <- getTodaysGames()
+      # dailyDf <- todaysReactive$df
       dailyCount <- nrow(dailyDf)
       dailyMatchupList <- lapply(1:dailyCount, function(i) {
         matchupList <- paste0("matchup", i)
@@ -152,14 +190,21 @@ server <- function(input, output, session){
       tagList(dailyMatchupList)
     }) 
     
-    for (i in 1:16) {
+    observeEvent(result_auth$authorized == TRUE, {
+      forDynamicUi <- getTodaysGames()
+      
+      # Validate the data frame
+      if (nrow(forDynamicUi) < 1) {
+        print("YOU SUCK") # Exit early if no games are returned
+      }
+
+      for (i in 1:nrow(forDynamicUi)) {
       local({
         thisI <- i
         matchupName <- paste0("matchup", thisI)
         
         output[[matchupName]] <- renderUI({
           # Concatenate team names and scores
-          # Red Sox vs. Atlanta Braves
           # Score
           # Status (in progress, delayed, coming soon, etc.)
           oneMoreTime <- getTodaysGames()
@@ -172,13 +217,22 @@ server <- function(input, output, session){
           awayTeamScore <- oneMoreTime[thisI,34]
           awayTeamWin <- oneMoreTime[thisI,37]
           awayTeamLoss <- oneMoreTime[thisI,38]
+          
+          # Determine if game has already started
           if(gameStatus == "In Progress"){
             gameScore <- paste0(gameStatus, ": ", awayTeamScore, " - ", homeTeamScore)
           } else{
             gameScore <- paste0(gameStatus ,": 0 - 0")
           }
-          namingConvention <- paste0(awayTeamName,"(",awayTeamWin," - ",awayTeamLoss,")"," @ ",
-                                     homeTeamName,"(",homeTeamWin," - ",homeTeamLoss,")")
+          # Naming convention to display to the user
+          # Map abbreviated name to new column in data frame
+          homeTeamAbbreviation <- teamMap[homeTeamName]
+          awayTeamAbbreviation <- teamMap[awayTeamName]
+          
+          namingConvention <- paste0(awayTeamAbbreviation," (",awayTeamWin," - ",awayTeamLoss,")"," @ ",
+                                     homeTeamAbbreviation," (",homeTeamWin," - ",homeTeamLoss,")")
+          
+          # Color code the box's based on current game status
           if(gameStatus == "In Progess"){
             colorCheck <- "lightblue"
           } else if (gameStatus == "Scheduled"){
@@ -189,6 +243,7 @@ server <- function(input, output, session){
             colorCheck <- "red"
           }
           
+          # Render value box
           valueBox(
             gameScore,
             namingConvention,
@@ -198,4 +253,5 @@ server <- function(input, output, session){
         })
       })
     }
+  })
 }
