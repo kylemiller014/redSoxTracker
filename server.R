@@ -23,6 +23,7 @@ require(htmlwidgets)
 require(reactlog)
 require(DiagrammeR)
 require(stringr)
+require(lubridate)
 
 # Import additional functions
 source("./functions/dbConnect.R")
@@ -90,11 +91,12 @@ server <- function(input, output, session){
                  "Chicago Cubs" = "CHC",
                  "Chicago White Sox" = "CWS",
                  "Cincinnati Reds" = "CIN",
+                 # "Cleveland Indians" = "CLE",
                  "Cleveland Guardians" = "CLE",
                  "Colorado Rockies" = "COL",
                  "Detroit Tigers" = "DET",
                  # HAHA used to be the FLORIDA Marlins
-                 # Definitely didn't troubleshoot this for long at all...
+                 # "Florida Marlins" = "FLA,
                  "Miami Marlins" = "MIA",
                  "Houston Astros" = "HOU",
                  "Kansas City Royals" = "KAN",
@@ -128,11 +130,19 @@ server <- function(input, output, session){
     # Get today's game information
     getTodaysGames <- eventReactive(result_auth$authorized == TRUE, {
       # Check if user has successfully logged in
-        # Update data presented to users every 10000 milliseconds
+        # Update data presented to users every 60,000 milliseconds
         invalidateLater(60000)
         df <- ParserTodayGame()
         if(nrow(df) < 1){
-          shinyalert("API returned NULL... either it's the offseason or my code is broken... Time travel back to August 30th, 2024 while I get this figured out...", type = "error")
+          shinyalert("API returned NULL... either it's the offseason or my code is broken... Time travel back to August 30th, 2024 while I get this figured out...", 
+                     type = "error",
+                     showCancelButton = TRUE,
+                     closeOnEsc = TRUE,
+                     closeOnClickOutside = TRUE,
+                     confirmButtonText =  "Time Travel",
+                     cancelButtonText = "Non-believer",
+                     size = 'xs',
+                     animation = "slide-from-top")
           df <- GetDataFromDb(dbCreds$ip, dbCreds$port, dbCreds$user, dbCreds$pass, "SELECT * FROM shiny.offlinemode_0830;")
         }
     })
@@ -195,7 +205,7 @@ server <- function(input, output, session){
       
       # Validate the data frame
       if (nrow(forDynamicUi) < 1) {
-        print("YOU SUCK") # Exit early if no games are returned
+        print("Check your API code...") # Exit early if no games are returned
       }
 
       for (i in 1:nrow(forDynamicUi)) {
@@ -204,7 +214,8 @@ server <- function(input, output, session){
         matchupName <- paste0("matchup", thisI)
         
         output[[matchupName]] <- renderUI({
-          # Concatenate team names and scores
+          # Concatenate:
+          # Abbreviated team names
           # Score
           # Status (in progress, delayed, coming soon, etc.)
           oneMoreTime <- getTodaysGames()
@@ -217,6 +228,7 @@ server <- function(input, output, session){
           awayTeamScore <- oneMoreTime[thisI,34]
           awayTeamWin <- oneMoreTime[thisI,37]
           awayTeamLoss <- oneMoreTime[thisI,38]
+          whenDoesItStart <- oneMoreTime[thisI,6]
           
           # Determine if game has already started
           if(gameStatus == "In Progress"){
@@ -224,13 +236,28 @@ server <- function(input, output, session){
           } else{
             gameScore <- paste0(gameStatus ,": 0 - 0")
           }
+          
+          # Convert the date time value to a better UI display
+          if(gameStatus != "In Progress"){
+            # Make sure the time is in UTC
+            time_utc <- ymd_hms(whenDoesItStart, tz = "UTC")
+            
+            # Convert to local time (EST/EDT)
+            timeEst <- with_tz(time_utc, tzone = "America/New_York")
+            
+            # Format as a 12-hour time with AM/PM
+            gameTime <- paste0("- First Pitch: ",format(timeEst, "%I:%M %p"))
+          } else {
+            # If game has already started, no reason to show start time
+            gameTime <- ""
+          }
           # Naming convention to display to the user
           # Map abbreviated name to new column in data frame
           homeTeamAbbreviation <- teamMap[homeTeamName]
           awayTeamAbbreviation <- teamMap[awayTeamName]
           
           namingConvention <- paste0(awayTeamAbbreviation," (",awayTeamWin," - ",awayTeamLoss,")"," @ ",
-                                     homeTeamAbbreviation," (",homeTeamWin," - ",homeTeamLoss,")")
+                                     homeTeamAbbreviation," (",homeTeamWin," - ",homeTeamLoss,") ",gameTime)
           
           # Color code the box's based on current game status
           if(gameStatus == "In Progess"){
