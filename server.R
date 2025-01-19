@@ -128,7 +128,7 @@ server <- function(input, output, session){
     result_auth <- secure_server(check_credentials = check_credentials(credentials))
 
     # Get today's game information
-    getTodaysGames <- eventReactive(result_auth$authorized == TRUE, {
+    getTodaysGames <- eventReactive(result_auth$auth == TRUE, {
       # Check if user has successfully logged in
         # Update data presented to users every 60,000 milliseconds
         invalidateLater(60000)
@@ -150,8 +150,11 @@ server <- function(input, output, session){
     # Render Value Box 1: "todaysDate"
     output$todaysDate <- renderValueBox({
       todaysDF <- getTodaysGames()
-      #todaysDF <- todaysReactive$df
+      
+      # Get current date from df
       currentDate <- as.POSIXct(todaysDF[1,7])
+      
+      # Render valueBox
       valueBox(currentDate, "Today's Date", icon = icon("calendar"),
                color = 'blue', width = 4)
     })
@@ -159,8 +162,11 @@ server <- function(input, output, session){
     # Render Value Box 2: "totalGamesOutput"
     output$totalGamesOutput <- renderValueBox({
       todaysGames <- getTodaysGames()
-      #todaysGame <- todaysReactive$df
+      
+      # Get row count of df
       currentGames <<- nrow(todaysGames)
+      
+      # Render valueBox
       valueBox(currentGames, "Total Games Today", icon = icon("calendar"),
                color = 'blue', width = 4)
     })
@@ -170,17 +176,17 @@ server <- function(input, output, session){
       redSoxDf <- getTodaysGames()
       #redSoxDf <- todaysReactive$df
       awayTeam <- grepl('Boston Red Sox' , redSoxDf$dates_games_teams_away_team_name)
-      homeTeams <- grepl('Boston Red Sox' ,redSoxDf$dates_games_teams_home_team_name)
+      homeTeam <- grepl('Boston Red Sox' , redSoxDf$dates_games_teams_home_team_name)
       
       # Check if the Red Sox are active today
-      if(!all(awayTeam) || !all(homeTeam)){
-        redSoxPlaying <- 'YES'
-        redSoxColor <- 'green'
-      } else{
+      if(all(awayTeam == FALSE) && all(homeTeam == FALSE)){
         redSoxPlaying <- 'NO'
         redSoxColor <- 'red'
+      } else{
+        redSoxPlaying <- 'YES'
+        redSoxColor <- 'green'
       }
-
+      # Render valueBox
       valueBox(redSoxPlaying, "RedSox in Action?", icon = icon("th"),
                color = redSoxColor, width = 4)
     })
@@ -200,12 +206,12 @@ server <- function(input, output, session){
       tagList(dailyMatchupList)
     }) 
     
-    observeEvent(result_auth$authorized == TRUE, {
+    observeEvent(result_auth$auth == TRUE, {
       forDynamicUi <- getTodaysGames()
       
       # Validate the data frame
       if (nrow(forDynamicUi) < 1) {
-        print("Check your API code...") # Exit early if no games are returned
+        print("Check your API call...") # Exit early if no games are returned
       }
 
       for (i in 1:nrow(forDynamicUi)) {
@@ -246,7 +252,7 @@ server <- function(input, output, session){
             timeEst <- with_tz(time_utc, tzone = "America/New_York")
             
             # Format as a 12-hour time with AM/PM
-            gameTime <- paste0("- First Pitch: ",format(timeEst, "%I:%M %p"))
+            gameTime <- paste0("- ",format(timeEst, "%I:%M %p"))
           } else {
             # If game has already started, no reason to show start time
             gameTime <- ""
