@@ -50,7 +50,12 @@ sidebar <- dashboardSidebar(sidebarMenu(
 ))
 
 #####DASHBOARD MAIN BODY######
-body <- dashboardBody(tabItems(
+body <- dashboardBody(
+  # Add link to CSS styles
+  tags$head(
+    tags$link(rel = "stylesheet", type = "text/css", href = "syles.css")
+  ),
+  tabItems(
     # Today's Game
     tabItem(tabName = 'currentGame',
         fluidRow(

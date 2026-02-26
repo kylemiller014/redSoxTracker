@@ -304,12 +304,33 @@ server <- function(input, output, session){
           }
           
           # Render value box
-          valueBox(
+          # make this an action button for better interactivity
+          actionButton(
+            inputId = paste0("matchup_click_", thisI),
+            label = 
+            valueBox(
             gameScore,
             namingConvention,
             width = 20,
             color = colorCheck
+          ),
+          style = "padding:0;border:none;background:none;width:100%;"
           )
+        })
+        # Clickable value boxes
+        observeEvent(input[[paste0("matchup_click_", thisI)]], {
+          
+          row <- getTodaysGames()[thisI, ]
+          
+          showModal(
+            modalDialog(
+              title = paste(row$away_team_name, "@", row$home_team_name),
+              paste("Score:", row$away_score, "-", row$home_score),
+              paste("Status:", row$game_status),
+              easyClose = TRUE
+            )
+          )
+          
         })
       })
     }

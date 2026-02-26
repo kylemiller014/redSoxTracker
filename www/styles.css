@@ -1,0 +1,15 @@
+/* Make valueBoxes feel clickable */
+.small-box {
+  cursor: pointer;
+}
+
+/* subtle hover grow */
+.small-box:hover {
+  transform: scale(1.02);
+  transition: 0.12s ease-in-out;
+}
+
+/* optional: softer press effect */
+.small-box:active {
+  transform: scale(0.99);
+}
