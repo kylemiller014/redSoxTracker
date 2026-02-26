@@ -1,2 +1,10 @@
-config.yml
-.Rhistory
+.Rproj.user
+.yml
+.DS_Store
+*.Rproj
+*.Rhistory
+*.RData
+*.Ruserdata
+*.Rproj.user
+*.DS_Store
+*.yml

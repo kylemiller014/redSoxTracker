@@ -55,7 +55,7 @@ server <- function(input, output, session){
             port = dbCreds$port, 
             username = dbCreds$user, 
             password = dbCreds$pass, 
-            sqlQuery = 'SELECT username, password FROM creds.userInfo;', 
+            sqlQuery = 'SELECT username, password FROM shiny.userInfo;', 
             limit = -1)
         return(credentials)
     }
@@ -145,6 +145,7 @@ server <- function(input, output, session){
                      animation = "slide-from-top")
           df <- GetDataFromDb(dbCreds$ip, dbCreds$port, dbCreds$user, dbCreds$pass, "SELECT * FROM shiny.offlinemode_0830;")
         }
+        df
     })
     
     # Render Value Box 1: "todaysDate"
@@ -210,7 +211,7 @@ server <- function(input, output, session){
       forDynamicUi <- getTodaysGames()
       
       # Validate the data frame
-      if (nrow(forDynamicUi) < 1) {
+      if (length(forDynamicUi) < 1) {
         print("Check your API call...") # Exit early if no games are returned
       }
 
@@ -225,16 +226,42 @@ server <- function(input, output, session){
           # Score
           # Status (in progress, delayed, coming soon, etc.)
           oneMoreTime <- getTodaysGames()
-          gameStatus <- oneMoreTime[thisI, 30]
-          homeTeamName <- oneMoreTime[thisI, 50]
-          homeTeamScore <- oneMoreTime[thisI,43]
-          homeTeamWin <- oneMoreTime[thisI,46]
-          homeTeamLoss <- oneMoreTime[thisI,47]
-          awayTeamName <- oneMoreTime[thisI, 41]
-          awayTeamScore <- oneMoreTime[thisI,34]
-          awayTeamWin <- oneMoreTime[thisI,37]
-          awayTeamLoss <- oneMoreTime[thisI,38]
-          whenDoesItStart <- oneMoreTime[thisI,6]
+          
+          # define the row we want
+          dataRow <- oneMoreTime[thisI,]
+          
+          # Get the values we need based on column name
+          # Game status
+          gameStatus <- dataRow$dates_games_status_detailedState
+          
+          # Game Start Time
+          whenDoesItStart <- dataRow$dates_games_gameDate
+          
+          # Home Team Info 
+          # Name
+          homeTeamName <- dataRow$dates_games_teams_home_team_name
+          
+          # Score
+          homeTeamScore <- dataRow$dates_games_teams_home_score
+            
+          # Win
+          homeTeamWin <- dataRow$dates_games_teams_home_leagueRecord_wins
+            
+          # Loss
+          homeTeamLoss <- dataRow$dates_games_teams_home_leagueRecord_losses
+            
+          # Away Team Info 
+          # Name
+          awayTeamName <- dataRow$dates_games_teams_away_team_name
+          
+          # Score
+          awayTeamScore <- dataRow$dates_games_teams_away_score
+            
+          # Win
+          awayTeamWin <- dataRow$dates_games_teams_away_leagueRecord_wins
+          
+          # Loss
+          awayTeamLoss <- dataRow$dates_games_teams_away_leagueRecord_losses
           
           # Determine if game has already started
           if(gameStatus == "In Progress"){
