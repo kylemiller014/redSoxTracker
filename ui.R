@@ -9,6 +9,7 @@ require(shinymanager)
 require(shinyalert)
 require(plotly)
 require(DiagrammeR)
+require(DT)
 
 # Inactivity Function
 inactivity <- "function idleTimer() {
@@ -33,20 +34,17 @@ sidebar <- dashboardSidebar(sidebarMenu(
     # Today's Game
     menuItem("Today's Action", tabName = 'currentGame', icon = icon("dashboard")),
 
+    # Standings
+    menuItem("Standings", tabName = 'seasonStandings', icon = icon("th")),
+    
+    # Stats
+    menuItem("Stats", tabName = 'seasonStats', icon = icon("th")),
+    
     # Schedule
     menuItem("Schedule", tabName = 'seasonSchedule', icon = icon("th")),
 
     # Prospect Rankings
-    menuItem("Prospect Rankings", tabName = 'prospectRank', icon = icon("th")),
-
-    # Standings
-    menuItem("Standings", tabName = 'seasonStandings', icon = icon("th")),
-
-    # Stats
-    menuItem("Stats", tabName = 'seasonStats', icon = icon("th")),
-
-    # Field Rendering
-    menuItem("Fenway", tabName = 'fenwayDetails', icon = icon("th"))
+    menuItem("Prospect Rankings", tabName = 'prospectRank', icon = icon("th"))
 ))
 
 #####DASHBOARD MAIN BODY######
@@ -68,20 +66,29 @@ body <- dashboardBody(
           uiOutput("dynamicMatchup")
         )),
 
+    # Standings
+    tabItem(tabName = 'seasonStandings',
+            fluidRow(
+              # Filter options for leagues and division
+              box(width = 4, title = "Filters", status = "primary", solidHeader = TRUE,
+                  selectInput("leagueFilter", "Select League",
+                              choices = c("MLB", "AL", "NL"), selected = "AL"),
+                  selectInput("divisionFilter", "Select Division",
+                              choices = c("All", "Central", "East", "West"), selected = "East")
+                  ),
+              # Render the standings table
+              box(width = 8, title = "MLB Standings", status = "info", solidHeader = TRUE,
+                  DTOutput("standingsTable"))
+            )),
+    
+    # Stats
+    tabItem(tabName = 'seasonStats'),
+    
     # Schedule
     tabItem(tabName = 'seasonSchedule'),
 
     # Prospect Rankings
-    tabItem(tabName = 'prospectRank'),
-
-    # Standings
-    tabItem(tabName = 'seasonStandings'),
-
-    # Stats
-    tabItem(tabName = 'seasonStats'),
-
-    # Field Rendering
-    tabItem(tabName = 'fenwayDetails')
+    tabItem(tabName = 'prospectRank')
 ))
 
 #####RENDER UI######

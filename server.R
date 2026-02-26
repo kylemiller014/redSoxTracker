@@ -24,6 +24,7 @@ require(reactlog)
 require(DiagrammeR)
 require(stringr)
 require(lubridate)
+require(DT)
 
 # Import additional functions
 source("./functions/dbConnect.R")
@@ -334,5 +335,28 @@ server <- function(input, output, session){
         })
       })
     }
+  })
+  
+  #### STANDINGS ####
+  # Query API for current standings
+  standingsDf <- reactive({
+    getTodaysStandings()
+  })
+    
+  # Filter the table based on user inputs
+  filteredStandings <- reactive({
+    data <- standingsDf()
+    if(is.null(data)) return(NULL)
+    if(input$leagueFilter != "MLB") data <- data[data$league == input$leagueFilter, ]
+    if(input$divisionFilter != "All") data <- data[data$division == input$divisionFilter, ]
+    data
+  })  
+  
+  # Render the table
+  output$standingsTable <- renderDT({
+    data <- filteredStandings()
+    if(is.null(data)) return(NULL)
+    datatable(data, # eventually filter down to columns needed
+              options = list(pageLength = 50))
   })
 }

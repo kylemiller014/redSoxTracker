@@ -24,6 +24,7 @@ library(reactlog)
 library(DiagrammeR)
 library(stringr)
 library(lubridate)
+library(DT)
 
 source("ui.R")
 source("server.R")
