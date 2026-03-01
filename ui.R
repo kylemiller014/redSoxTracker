@@ -70,15 +70,26 @@ body <- dashboardBody(
     tabItem(tabName = 'seasonStandings',
             fluidRow(
               # Filter options for leagues and division
-              box(width = 4, title = "Filters", status = "primary", solidHeader = TRUE,
-                  selectInput("leagueFilter", "Select League",
-                              choices = c("MLB", "AL", "NL"), selected = "AL"),
-                  selectInput("divisionFilter", "Select Division",
-                              choices = c("All", "Central", "East", "West"), selected = "East")
-                  ),
+              # box(width = 4, title = "Filters", status = "primary", solidHeader = TRUE,
+              #     selectInput("leagueFilter", "Select League",
+              #                 choices = c("MLB", "AL", "NL"), selected = "AL"),
+              #     selectInput("divisionFilter", "Select Division",
+              #                 choices = c("All", "Central", "East", "West"), selected = "East")
+              #     ),
+              # FILTER BAR
+              div(class = "standings-filters",
+                  selectInput("leagueFilter", NULL,
+                              choices = c("MLB", "AL", "NL"), width = "150px"),
+                  selectInput("divisionFilter", NULL,
+                              choices = c("All", "East", "Central", "West"), width = "150px")
+              ),
               # Render the standings table
-              box(width = 8, title = "MLB Standings", status = "info", solidHeader = TRUE,
-                  DTOutput("standingsTable"))
+              # box(width = 8, title = "MLB Standings", status = "info", solidHeader = TRUE,
+              #     DTOutput("standingsTable"))
+              div(
+                class = "dt-scroll-wrapper",
+                DTOutput("standingsTable")
+              )
             )),
     
     # Stats

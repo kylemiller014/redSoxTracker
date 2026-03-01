@@ -1,3 +1,4 @@
+/* ---------- Today's Action ---------- */
 /* Make valueBoxes feel clickable */
 .small-box {
   cursor: pointer;
@@ -12,4 +13,103 @@
 /* optional: softer press effect */
 .small-box:active {
   transform: scale(0.99);
+}
+
+/* ---------- STANDINGS---------- */
+/* ---------- PAGE BACKGROUND ---------- */
+.content-wrapper, .right-side {
+  background-color: #111 !important;
+}
+
+/* ---------- CARD ---------- */
+.standings-card {
+  background-color: #1b1b1b !important;
+  border-radius: 12px !important;
+  padding: 15px !important;
+  border: none !important;
+}
+
+/* ---------- FILTER BAR ---------- */
+.standings-filters {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+/* dropdown styling */
+.selectize-input {
+  background-color: #2b2b2b !important;
+  color: white !important;
+  border: 1px solid #444 !important;
+}
+
+/* ---------- DT TABLE ---------- */
+table.dataTable {
+  background-color: #1b1b1b !important;
+  color: white !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+  color: white !important;
+}
+
+.dataTables_filter input {
+  background-color: #2b2b2b !important;
+  color: white !important;
+  border: 1px solid #444 !important;
+}
+
+/* hover effect */
+table.dataTable tbody tr:hover {
+  background-color: #2a2a2a !important;
+}
+
+/* ---------- Compact DataTable ---------- */
+
+/* shrink row height */
+table.dataTable tbody td {
+  padding: 4px 8px !important;
+  font-size: 13px !important;
+}
+
+/* shrink header */
+table.dataTable thead th {
+  padding: 6px 8px !important;
+  font-size: 13px !important;
+}
+
+/* remove extra DT spacing */
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dataTables_paginate {
+  margin-top: 4px !important;
+  margin-bottom: 4px !important;
+}
+
+/* tighten line height */
+table.dataTable {
+  line-height: 1.1 !important;
+}
+
+/* ---------- allow scroll ---------- */
+.dt-scroll-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* force DT not to stretch */
+.dataTables_wrapper {
+  width: 100% !important;
+}
+
+/* critical: override shinydashboard clipping */
+.content-wrapper,
+.right-side,
+.box {
+  overflow: visible !important;
+}
+
+/* keep table natural width */
+table.dataTable {
+  white-space: nowrap;
 }

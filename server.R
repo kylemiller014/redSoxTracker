@@ -31,6 +31,7 @@ source("./functions/dbConnect.R")
 source("./functions/dataClean.R")
 source("./functions/columnDataTypes.R")
 source("./functions/ParserTodaysGame.R")
+source("./functions/ParserStandings.R")
 
 # Output directory for cleaned data
 opf <- "./data"
@@ -264,8 +265,8 @@ server <- function(input, output, session){
           # Loss
           awayTeamLoss <- dataRow$dates_games_teams_away_leagueRecord_losses
           
-          # Determine if game has already started
-          if(gameStatus == "In Progress"){
+          # Determine if game has already started or has finished
+          if(gameStatus == "In Progress" | gameStatus == "Final"){
             gameScore <- paste0(gameStatus, ": ", awayTeamScore, " - ", homeTeamScore)
           } else{
             gameScore <- paste0(gameStatus ,": 0 - 0")
@@ -294,14 +295,16 @@ server <- function(input, output, session){
                                      homeTeamAbbreviation," (",homeTeamWin," - ",homeTeamLoss,") ",gameTime)
           
           # Color code the box's based on current game status
-          if(gameStatus == "In Progess"){
-            colorCheck <- "lightblue"
+          if(gameStatus == "In Progress"){
+            colorCheck <- "light-blue"
           } else if (gameStatus == "Scheduled"){
-            colorCheck <- "olive"
+            colorCheck <- "yellow"
           } else if(gameStatus == "Pre-Game") {
             colorCheck <- "orange"
-          } else{
+          } else if(gameStatus == "Final") {
             colorCheck <- "red"
+          } else{
+            colorCheck <- "purple"
           }
           
           # Render value box
@@ -315,7 +318,7 @@ server <- function(input, output, session){
             width = 20,
             color = colorCheck
           ),
-          style = "padding:0;border:none;background:none;width:100%;"
+          style = "padding:0;border:none;width:100%;"
           )
         })
         # Clickable value boxes
@@ -356,7 +359,16 @@ server <- function(input, output, session){
   output$standingsTable <- renderDT({
     data <- filteredStandings()
     if(is.null(data)) return(NULL)
-    datatable(data, # eventually filter down to columns needed
-              options = list(pageLength = 50))
+    datatable(data, # eventually filter down to columns needed,
+              rownames = FALSE,
+              class = "compact stripe hover nowrap",
+              options = list(
+                pageLength = 30,
+                autoWidth = FALSE,
+                paging = FALSE,
+                scrollX = TRUE,
+                scrollY = "60vh",
+                dom = "tip",
+                ordering = TRUE))
   })
 }
