@@ -363,18 +363,28 @@ server <- function(input, output, session){
         "leagueFilter",
         selected = "AL"
       )
-    }
+    } 
   })
   
   # Observe event - force league to "MLB" if user selects no division
   observeEvent(input$leagueFilter, {
-    if(input$leagueFilter == "All") {
+    if(input$leagueFilter == "MLB" && input$divisionFilter != "All") {
     updateSelectInput(
-      sesion,
+      session,
       "divisionFilter",
-      selected = "MLB"
+      selected = "All"
     )
     }
+  })
+  
+  # dynamically limit division choices
+  observeEvent(input$leagueFilter, {
+    div_choices <- switch(input$leagueFilter,
+                          "AL"  = c("All", "East", "Central", "West"),
+                          "NL"  = c("All", "East", "Central", "West"),
+                          "MLB" = "All"
+    )
+    updateSelectInput(session, "divisionFilter", choices = div_choices)
   })
   
   # Display the last update time to the user - lastUpdatedText
@@ -419,7 +429,6 @@ server <- function(input, output, session){
                 paging = FALSE,
                 scrollX = TRUE,
                 scrollY = TRUE,
-                dom = "tip",
                 order = list(
                   list(sortBy, "asc")
                 ),
