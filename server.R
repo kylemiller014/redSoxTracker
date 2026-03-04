@@ -350,16 +350,67 @@ server <- function(input, output, session){
   filteredStandings <- reactive({
     data <- standingsDf()
     if(is.null(data)) return(NULL)
-    if(input$leagueFilter != "MLB") data <- data[data$league == input$leagueFilter, ]
-    if(input$divisionFilter != "All") data <- data[data$division == input$divisionFilter, ]
+    if(input$leagueFilter != "MLB") data <- data[data$League == input$leagueFilter, ]
+    if(input$divisionFilter != "All") data <- data[data$Division == input$divisionFilter, ]
     data
   })  
+  
+  # Observe event - force division to "AL" if user selects a division
+  observeEvent(input$divisionFilter, {
+    if(input$divisionFilter != "All" && input$leagueFilter == "MLB"){
+      updateSelectInput(
+        session,
+        "leagueFilter",
+        selected = "AL"
+      )
+    }
+  })
+  
+  # Observe event - force league to "MLB" if user selects no division
+  observeEvent(input$leagueFilter, {
+    if(input$leagueFilter == "All") {
+    updateSelectInput(
+      sesion,
+      "divisionFilter",
+      selected = "MLB"
+    )
+    }
+  })
+  
+  # Display the last update time to the user - lastUpdatedText
+  output$lastUpdatedText <- renderText({
+    timeDf <- filteredStandings()
+    
+    # Convert from chr to datetime
+    timeDf$`Last Updated` <- as.POSIXct(timeDf$`Last Updated`, tz = "UTC")
+    
+    lastUpdateTime <- max(timeDf$`Last Updated`, na.rm = TRUE)
+    
+    paste("Last Updated:", format(lastUpdateTime, "%b %d, %I:%M %p"))
+  })
   
   # Render the table
   output$standingsTable <- renderDT({
     data <- filteredStandings()
     if(is.null(data)) return(NULL)
-    datatable(data, # eventually filter down to columns needed,
+    
+    # Define columns that should not be displayed to the user
+    hideCols <- c("Season",  "League", "Division", "Last Updated","divisionRank", "leagueRank", "wildCardRank", "mlbRank",
+                  "WC GB", "LG GB", "SLG GB", "MLB GB", "DIV GB", "CONF GB",
+                  "divChampFlag", "divLeadFlag", "wcLeadFlag",  "hasWildcard", "clinchedFlag",
+                  "eliminationNumber", "eliminationNumberMlb", "eliminationNumberLeague", "eliminationNumberDivision", "eliminationNumberConference", "wildCardEliminationNumber",
+                  "team_id", "team_link",
+                  "leagueRecord_wins" ,"leagueRecord_losses", "leagueRecord_ties", "leagueRecord_pct",
+                  "records_splitRecords", "records_divisionRecords", "records_overallRecords","records_leagueRecords")
+    
+    # Get index for hidden columns
+    hideColsIndex <- which(colnames(data) %in% hideCols) - 1
+    
+    # Sort by mlbRank column
+    sortBy <- which(colnames(data) == "mlbRank") - 1
+    
+    # Render data table
+    datatable(data,
               rownames = FALSE,
               class = "compact stripe hover nowrap",
               options = list(
@@ -367,8 +418,15 @@ server <- function(input, output, session){
                 autoWidth = FALSE,
                 paging = FALSE,
                 scrollX = TRUE,
-                scrollY = "60vh",
+                scrollY = TRUE,
                 dom = "tip",
-                ordering = TRUE))
+                order = list(
+                  list(sortBy, "asc")
+                ),
+                columnDefs = list(
+                  list(visible = FALSE, targets = hideColsIndex)
+                )
+                )
+              )
   })
 }

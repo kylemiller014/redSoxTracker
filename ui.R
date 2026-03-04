@@ -69,19 +69,16 @@ body <- dashboardBody(
     # Standings
     tabItem(tabName = 'seasonStandings',
             fluidRow(
-              # Filter options for leagues and division
-              # box(width = 4, title = "Filters", status = "primary", solidHeader = TRUE,
-              #     selectInput("leagueFilter", "Select League",
-              #                 choices = c("MLB", "AL", "NL"), selected = "AL"),
-              #     selectInput("divisionFilter", "Select Division",
-              #                 choices = c("All", "Central", "East", "West"), selected = "East")
-              #     ),
               # FILTER BAR
               div(class = "standings-filters",
-                  selectInput("leagueFilter", NULL,
+                  # Filter by MLB, AL, or NL
+                  selectInput("leagueFilter", "League",
                               choices = c("MLB", "AL", "NL"), width = "150px"),
-                  selectInput("divisionFilter", NULL,
-                              choices = c("All", "East", "Central", "West"), width = "150px")
+                  # Filter by All, East, Central, or West
+                  selectInput("divisionFilter", "Division",
+                              choices = c("All", "East", "Central", "West"), width = "150px"),
+                  # Tell the user when the API was last updated
+                  textOutput("lastUpdatedText")
               ),
               # Render the standings table
               # box(width = 8, title = "MLB Standings", status = "info", solidHeader = TRUE,
