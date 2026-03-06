@@ -69,24 +69,39 @@ body <- dashboardBody(
     # Standings
     tabItem(tabName = 'seasonStandings',
             fluidRow(
-              # FILTER BAR
-              div(class = "standings-filters",
-                  # Filter by MLB, AL, or NL
-                  selectInput("leagueFilter", "League",
-                              choices = c("MLB", "AL", "NL"), width = "150px"),
-                  # Filter by All, East, Central, or West
-                  selectInput("divisionFilter", "Division",
-                              choices = c("All", "East", "Central", "West"), width = "150px"),
-                  # Tell the user when the API was last updated
-                  textOutput("lastUpdatedText")
-              ),
-              # Render the standings table
-              # box(width = 8, title = "MLB Standings", status = "info", solidHeader = TRUE,
-              #     DTOutput("standingsTable"))
-              div(
-                class = "dt-scroll-wrapper",
+              column(
+                width = 12,
+                
+                div(
+                  style = "display:flex; align-items:center; gap:20px; margin-bottom:10px;",
+                  
+                  selectInput(
+                    "leagueFilter",
+                    "League",
+                    choices = c("MLB","AL","NL"),
+                    width = "120px"
+                  ),
+                  
+                  selectInput(
+                    "divisionFilter",
+                    "Division",
+                    choices = c("All","East","Central","West"),
+                    width = "120px"
+                  ),
+                  
+                  div(
+                    style = "margin-top:25px;",
+                    textOutput("lastUpdatedText", inline = TRUE)
+                  )
+                )
+              )
+            ),
+            fluidRow(
+              column(
+                width = 12,
                 DTOutput("standingsTable")
               )
+            )
             )),
     
     # Stats
@@ -97,7 +112,7 @@ body <- dashboardBody(
 
     # Prospect Rankings
     tabItem(tabName = 'prospectRank')
-))
+)
 
 #####RENDER UI######
 ui <- secure_app(tags_top = tags$img(src = 'app_logo.jpeg', height = 400, width =400),

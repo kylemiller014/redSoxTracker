@@ -3,7 +3,7 @@ library(jsonlite)
 library(dplyr)
 
 getTodaysStandings <- function() {
-  # Create look up data frame for divisions and league designators
+  # Create look up data frame for divisions and league designation
   team_lookup <- data.frame(
     # List of all the team names in no particular order
     team_name = c(
@@ -59,7 +59,7 @@ getTodaysStandings <- function() {
   # Add columns for league and division
   standings <- merge(standingsDf, team_lookup, by = "team_name", all.x = TRUE)
   
-  # Change column namining conventions
+  # Change column naming conventions
   # Standard Names:
   # [1] "team_name"                   "season"                      "divisionRank"                "leagueRank"                  "wildCardRank"               
   # [6] "sportRank"                   "gamesPlayed"                 "gamesBack"                   "wildCardGamesBack"           "leagueGamesBack"            

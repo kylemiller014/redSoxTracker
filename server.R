@@ -303,7 +303,11 @@ server <- function(input, output, session){
             colorCheck <- "orange"
           } else if(gameStatus == "Final") {
             colorCheck <- "red"
-          } else{
+          } else if(gameStatus == "Completed Early") {
+            colorCheck <- "maroon"
+          } else if(gameStatus == "Warmup") {
+            colorCheck <- "black"
+          }  else{
             colorCheck <- "purple"
           }
           
@@ -422,13 +426,12 @@ server <- function(input, output, session){
     # Render data table
     datatable(data,
               rownames = FALSE,
-              class = "compact stripe hover nowrap",
               options = list(
                 pageLength = 30,
-                autoWidth = FALSE,
+                autoWidth = TRUE,
                 paging = FALSE,
-                scrollX = TRUE,
-                scrollY = TRUE,
+                scrollY = "900px",
+                scrollCollapse = TRUE,
                 order = list(
                   list(sortBy, "asc")
                 ),
