@@ -50,8 +50,27 @@ getTodaysStandings <- function() {
     allTeamsDf[[length(allTeamsDf) + 1]] <- df
   }
   
+  # Check for column deltas
+  allColumnNames <- unique(unlist(lapply(allTeamsDf, names)))
+  
+  # Align all data frames to same columns
+  allTeamsDf_aligned <- lapply(allTeamsDf, function(df) {
+    missing_cols <- setdiff(allColumnNames, names(df))
+    
+    # Add missing columns as NA
+    for (col in missing_cols) {
+      df[[col]] <- NA
+    }
+    
+    # Ensure consistent column order
+    df <- df[, allColumnNames]
+    
+    return(df)
+  })
+  
+  
   # Create single dataframe to actually mess with
-  standingsDf <- do.call(rbind, allTeamsDf)
+  standingsDf <- do.call(rbind, allTeamsDf_aligned)
   
   # Replace . with _ 
   colnames(standingsDf) <- str_replace_all(colnames(standingsDf), "\\.", "_")
@@ -61,30 +80,32 @@ getTodaysStandings <- function() {
   
   # Change column naming conventions
   # Standard Names:
-  # [1] "team_name"                   "season"                      "divisionRank"                "leagueRank"                  "wildCardRank"               
-  # [6] "sportRank"                   "gamesPlayed"                 "gamesBack"                   "wildCardGamesBack"           "leagueGamesBack"            
-  # [11] "springLeagueGamesBack"       "sportGamesBack"              "divisionGamesBack"           "conferenceGamesBack"         "lastUpdated"                
-  # [16] "runsAllowed"                 "runsScored"                  "divisionChamp"               "divisionLeader"              "wildCardLeader"             
-  # [21] "hasWildcard"                 "clinched"                    "eliminationNumber"           "eliminationNumberSport"      "eliminationNumberLeague"    
-  # [26] "eliminationNumberDivision"   "eliminationNumberConference" "wildCardEliminationNumber"   "wins"                        "losses"                     
-  # [31] "runDifferential"             "winningPercentage"           "team_id"                     "team_link"                   "leagueRecord_wins"          
-  # [36] "leagueRecord_losses"         "leagueRecord_ties"           "leagueRecord_pct"            "records_splitRecords"        "records_divisionRecords"    
-  # [41] "records_overallRecords"      "records_leagueRecords"       "league"                      "division"      
+  # [1] "season"                      "divisionRank"                "leagueRank"                  "sportRank"                   "gamesPlayed"                
+  # [6] "gamesBack"                   "wildCardGamesBack"           "leagueGamesBack"             "springLeagueGamesBack"       "sportGamesBack"             
+  # [11] "divisionGamesBack"           "conferenceGamesBack"         "lastUpdated"                 "runsAllowed"                 "runsScored"                 
+  # [16] "divisionChamp"               "divisionLeader"              "hasWildcard"                 "clinched"                    "eliminationNumber"          
+  # [21] "eliminationNumberSport"      "eliminationNumberLeague"     "eliminationNumberDivision"   "eliminationNumberConference" "wildCardEliminationNumber"  
+  # [26] "wins"                        "losses"                      "runDifferential"             "winningPercentage"           "wildCardRank"               
+  # [31] "wildCardLeader"              "team.id"                     "team.name"                   "team.link"                   "streak.streakCode"          
+  # [36] "streak.streakType"           "streak.streakNumber"         "leagueRecord.wins"           "leagueRecord.losses"         "leagueRecord.ties"          
+  # [41] "leagueRecord.pct"            "records.splitRecords"        "records.divisionRecords"     "records.overallRecords"      "records.leagueRecords"      
+  # [46] "records.expectedRecords"   
   # New names for table rendering
-  cleanerNames <- c("Team", "Season", "divisionRank", "leagueRank", "wildCardRank", 
-                    "mlbRank", "GP", "GB", "WC GB", "LG GB", 
-                    "SLG GB", "MLB GB", "DIV GB", "CONF GB", "Last Updated", 
-                    "RA", "RS", "divChampFlag", "divLeadFlag", "wcLeadFlag",
-                    "hasWildcard", "clinchedFlag", "eliminationNumber", "eliminationNumberMlb", "eliminationNumberLeague",
-                    "eliminationNumberDivision", "eliminationNumberConference", "wildCardEliminationNumber", "W", "L",
-                    "DIFF", "PCT", "team_id", "team_link", "leagueRecord_wins" ,"leagueRecord_losses", "leagueRecord_ties",
-                    "leagueRecord_pct", "records_splitRecords", "records_divisionRecords", "records_overallRecords",
-                    "records_leagueRecords" , "League",  "Division")  
+  cleanerNames <- c("Team", "Season", "divisionRank", "leagueRank", "mlbRank", "GP", 
+                    "GB", "WC GB", "LG GB", "SLG GB", "MLB GB", 
+                    "DIV GB", "CONF GB", "Last Updated", "RA", "RS",
+                    "divChampFlag", "divLeadFlag", "hasWildcard", "clinchedFlag", "eliminationNumber", 
+                    "eliminationNumberMlb", "eliminationNumberLeague", "eliminationNumberDivision", "eliminationNumberConference", "wildCardEliminationNumber", 
+                    "W", "L","DIFF", "PCT", "wildCardRank", 
+                    "wcLeadFlag", "team_id", "team_link", "STRK", 
+                    "streakType", "streakNum","leagueRecord_wins" ,"leagueRecord_losses", "leagueRecord_ties",
+                    "leagueRecord_pct", "records_splitRecords", "records_divisionRecords", "records_overallRecords", "records_leagueRecords" , 
+                    "records_expectedRecords", "League",  "Division")  
   
   # New order for df
   cleanerOrder <- c(
     # First row - primary table fields for initial display
-    "Season", "Team", "W", "L", "PCT", "GB", "RS", "RA", "DIFF", "Last Updated", "League", "Division",
+    "Season", "Team", "W", "L", "PCT", "GB", "RS", "RA", "DIFF", "STRK", "Last Updated", "League", "Division",
     # Ranks Breakdown
     "divisionRank", "leagueRank", "wildCardRank", "mlbRank",
     # Games Back Breakdown
@@ -98,14 +119,16 @@ getTodaysStandings <- function() {
     # League Stats
     "leagueRecord_wins" ,"leagueRecord_losses", "leagueRecord_ties", "leagueRecord_pct",
     # Splits
-    "records_splitRecords", "records_divisionRecords", "records_overallRecords","records_leagueRecords"
+    "records_splitRecords", "records_divisionRecords", "records_overallRecords","records_leagueRecords", "records_expectedRecords"
     )
   
-  # Set new names
-  colnames(standings) <- cleanerNames
+  # Safer name handling
+  valid_len <- min(length(colnames(standings)), length(cleanerNames))
+  colnames(standings)[1:valid_len] <- cleanerNames[1:valid_len]
   
-  # Set new ordering
-  standingsCleaned <- standings[, cleanerOrder]
+  # Safe ordering
+  existingCols <- intersect(cleanerOrder, colnames(standings))
+  standingsCleaned <- standings[, cleanerOrder, drop = FALSE]
   
   # Final cleaning of the data frame
   standingsFinal <- standingsCleaned %>%

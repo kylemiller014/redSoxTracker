@@ -101,6 +101,12 @@ body <- dashboardBody(
                 width = 12,
                 DTOutput("standingsTable")
               )
+            ),
+            fluidRow(
+              column(
+                width=12,
+                uiOutput("teamSplitsTabs")
+              )
             )
             )),
     

@@ -410,12 +410,12 @@ server <- function(input, output, session){
     
     # Define columns that should not be displayed to the user
     hideCols <- c("Season",  "League", "Division", "Last Updated","divisionRank", "leagueRank", "wildCardRank", "mlbRank",
-                  "WC GB", "LG GB", "SLG GB", "MLB GB", "DIV GB", "CONF GB",
+                  # "WC GB", "LG GB", "SLG GB", "MLB GB", "DIV GB", "CONF GB",
                   "divChampFlag", "divLeadFlag", "wcLeadFlag",  "hasWildcard", "clinchedFlag",
                   "eliminationNumber", "eliminationNumberMlb", "eliminationNumberLeague", "eliminationNumberDivision", "eliminationNumberConference", "wildCardEliminationNumber",
                   "team_id", "team_link",
                   "leagueRecord_wins" ,"leagueRecord_losses", "leagueRecord_ties", "leagueRecord_pct",
-                  "records_splitRecords", "records_divisionRecords", "records_overallRecords","records_leagueRecords")
+                  "records_splitRecords", "records_divisionRecords", "records_overallRecords","records_leagueRecords", "records_expectedRecords")
     
     # Get index for hidden columns
     hideColsIndex <- which(colnames(data) %in% hideCols) - 1
@@ -426,6 +426,7 @@ server <- function(input, output, session){
     # Render data table
     datatable(data,
               rownames = FALSE,
+              selection = "single",
               options = list(
                 pageLength = 30,
                 autoWidth = TRUE,
@@ -440,5 +441,103 @@ server <- function(input, output, session){
                 )
                 )
               )
+  })
+  
+  # Function to help with safe list/df column selection
+  safeExtract <- function(x) {
+    if (is.null(x) || length(x) == 0) return(data.frame())
+    return(as.data.frame(x[[1]]))
+  }
+  
+  # Render team specific splits information
+  output$teamSplitsTabs <- renderUI({
+    selected_row <- input$standingsTable_rows_selected
+    
+    if (is.null(selected_row) || length(selected_row) == 0) {
+      return(
+        # Let the user know what clicking does within the table
+        box(
+          width = 12,
+          title = "Team Details",
+          status = "warning",
+          solidHeader = TRUE,
+          h4("Select a team from the table to view detailed stats!")
+        )
+      )
+    }
+    
+    # Get selected team
+    selected_team <- filteredStandings()[selected_row, ]
+    
+    # Set up tabs
+    tabBox(
+      title = paste("Detailed Team Breakdown: ", selected_team$Team),
+      width = 12,
+      
+      # Tab #1 - Records Splits
+      tabPanel("Overall Splits", tableOutput("recordsSplitsTable")),
+      
+      # Tab #2 - Division Splits
+      tabPanel("Division Splits", tableOutput("divisionSplitsTable")),
+      
+      # Tab #3 - League Splits
+      tabPanel("League Splits", tableOutput("leagueSplitsTable")),
+      
+      # Tab #4 - Home Away Splits
+      tabPanel("Home/Away", tableOutput("homeAwaySplitsTable")),
+      
+      # Tab #5 - Expected W / L 
+      tabPanel("Expected W/L", tableOutput("expectedWinLossTable"))
+    )
+  })
+  
+  # Render Tab #1 - Records Splits
+  output$recordsSplitsTable <- renderTable({
+    selected_row <- input$standingsTable_rows_selected
+    req(selected_row)
+    
+    df <- safeExtract(filteredStandings()[selected_row, ]$records_splitRecords)
+    colnames(df) <- c("W", "L", "Type", "PCT")
+    df
+  })
+  
+  # Render Tab #2 - Division Splits
+  output$divisionSplitsTable <- renderTable({
+    selected_row <- input$standingsTable_rows_selected
+    req(selected_row)
+    
+    df <- safeExtract(filteredStandings()[selected_row, ]$records_divisionRecords)
+    colnames(df) <- c("W", "L", "PCT", "Division ID", "Division", "Division API")
+    df[, c("W", "L", "PCT", "Division")]
+  })
+  
+  # Render Tab #3 - League Splits
+  output$leagueSplitsTable <- renderTable({
+    selected_row <- input$standingsTable_rows_selected
+    req(selected_row)
+    
+    df <- safeExtract(filteredStandings()[selected_row, ]$records_leagueRecords)
+    colnames(df) <- c("W", "L", "PCT", "League ID", "League", "League API")
+    df[, c("W", "L", "PCT", "League")]
+  })
+  
+  # Render Tab #4 - H / A Splits
+  output$homeAwaySplitsTable <- renderTable({
+    selected_row <- input$standingsTable_rows_selected
+    req(selected_row)
+    
+    df <- safeExtract(filteredStandings()[selected_row, ]$records_overallRecords)
+    colnames(df) <- c("W", "L", "Type", "PCT")
+    df
+  })
+  
+  # Render Tab #5 - Expected W / L Splits
+  output$expectedWinLossTable <- renderTable({
+    selected_row <- input$standingsTable_rows_selected
+    req(selected_row)
+    
+    df <- safeExtract(filteredStandings()[selected_row, ]$records_expectedRecords)
+    colnames(df) <- c("W", "L", "Type", "PCT")
+    df
   })
 }
